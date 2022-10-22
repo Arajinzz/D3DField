@@ -56,14 +56,16 @@ void Mouse::OnMouseMove(int x, int y)
 
 void Mouse::OnMouseLeave()
 {
+    IsInWindow = false;
+    buffer.push(Mouse::Event(Mouse::Event::Type::Leave, *this));
+    TrimBuffer();
 }
 
 void Mouse::OnMouseEnter()
 {
-}
-
-void Mouse::OnRawDelta(int dx, int dy)
-{
+    IsInWindow = true;
+    buffer.push(Mouse::Event(Mouse::Event::Type::Enter, *this));
+    TrimBuffer();
 }
 
 void Mouse::OnLeftPressed(int x, int y)

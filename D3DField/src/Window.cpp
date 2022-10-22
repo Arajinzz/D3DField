@@ -115,7 +115,22 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_MOUSEMOVE:
     {
         POINTS pt = MAKEPOINTS(lParam);
-        mouse.OnMouseMove(pt.x, pt.y);
+
+        if (pt.x >= 0 && pt.x < width && pt.y >= 0 && pt.y < height) {
+            mouse.OnMouseMove(pt.x, pt.y);
+            if (!mouse.IsInWindow) {
+                SetCapture(hWnd);
+                mouse.OnMouseEnter();
+            }
+        }
+        else if (wParam & (MK_LBUTTON | MK_RBUTTON)) {
+            mouse.OnMouseMove(pt.x, pt.y); // Left the window but LBUTTON or RBUTTON are still pressed
+        }
+        else {
+            ReleaseCapture();
+            mouse.OnMouseLeave();
+        }
+
         break;
     }
     case WM_LBUTTONDOWN:

@@ -22,6 +22,7 @@ public:
 			Move,
 			Enter,
 			Leave,
+			Invalid,
 		};
 
 	private:
@@ -31,7 +32,7 @@ public:
 		bool IsRightPressed = false;
 
 	public:
-		Event() {};
+		Event() : type(Type::Invalid), x(0), y(0) {};
 		Event(Type type, const Mouse& parent)
 			:
 			type(type),
@@ -69,7 +70,6 @@ private:
 	void OnMouseMove(int x, int y);
 	void OnMouseLeave();
 	void OnMouseEnter();
-	void OnRawDelta(int dx, int dy);
 	void OnLeftPressed(int x, int y);
 	void OnLeftReleased(int x, int y);
 	void OnRightPressed(int x, int y);
@@ -83,6 +83,7 @@ private:
 	int x, y; // coordinates
 	bool IsLeftPressed = false;
 	bool IsRightPressed = false;
+	bool IsInWindow = false;
 	std::queue<Event> buffer;
 };
 
