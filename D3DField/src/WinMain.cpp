@@ -1,6 +1,8 @@
 // This is the entry point
 
 #include <Windows.h>
+#include <string>
+#include <sstream>
 
 
 LRESULT CALLBACK MainWndProc(
@@ -17,6 +19,34 @@ LRESULT CALLBACK MainWndProc(
         PostQuitMessage(69);
         break;
 
+    case WM_KEYDOWN:
+    {
+        const char character[2] = { wParam, 0 };
+        SetWindowText(hWnd, character);
+        break;
+    }
+
+    case WM_KEYUP:
+        SetWindowText(hWnd, "D3DField");
+        break;
+
+    case WM_CHAR:
+    {
+        static std::string title;
+        title.push_back(wParam);
+        SetWindowText(hWnd, title.c_str());
+        break;
+    }
+
+    case WM_LBUTTONDOWN:
+    {
+        POINTS pt = MAKEPOINTS(lParam);
+        std::ostringstream oss;
+        oss << "(" << pt.x << "," << pt.y << ")";
+        SetWindowText(hWnd, oss.str().c_str());
+        break;
+    }
+
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
@@ -32,7 +62,7 @@ int WINAPI WinMain(
 )
 {
 
-    const LPCWSTR className = L"D3DField";
+    const auto className = "D3DField";
 
     // Register a window class
     WNDCLASSEX wndClass = {0};
@@ -54,7 +84,7 @@ int WINAPI WinMain(
     HWND hWnd = CreateWindowEx(
         0,
         className,
-        L"D3DField",
+        "D3DField",
         WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
         100, 100, // x, y
         800, 600, // w, h
