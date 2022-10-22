@@ -33,24 +33,82 @@ Window::WindowClass::~WindowClass()
 
 Window::Window(UINT width, UINT height, const char* name) {
 
+    this->width = width;
+    this->height = height;
+
+    // Create a window and show it
+    this->hWnd = CreateWindowEx(
+        0,
+        WindowClass::GetName(),
+        name,
+        WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
+        100, 100, // x, y
+        width, height, // w, h
+        nullptr,
+        nullptr,
+        WindowClass::GetInstance(),
+        this
+    );
+
+    ShowWindow(this->hWnd, SW_SHOW);
 }
 
 Window::~Window() {
-
+    DestroyWindow(this->hWnd);
 }
 
-LRESULT Window::HandleMsgSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    return LRESULT();
+    if (uMsg == WM_NCCREATE) {
+        /*
+        * So when creating a Window Class (Look at the constructor of Window just right above)
+        * we're setting the lParam to the Window instance.
+        * This piece of code will get that lParam and convert it to the Window Class
+        * and then store this window pointer on USERDATA, also it changes
+        * the WNDPROC to HandleMsgThunk.
+        * This way we can have multiple Windows.
+        */
+        const CREATESTRUCTW* const pCreate = (CREATESTRUCTW*)lParam;
+        Window* const pWnd = (Window*)pCreate->lpCreateParams;
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)(pWnd));
+        SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)(&Window::HandleMsgThunk));
+        return pWnd->HandleMsg(hWnd, uMsg, wParam, lParam);
+    }
+    return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-LRESULT Window::HandleMsgThunk(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT WINAPI Window::HandleMsgThunk(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    return LRESULT();
+    // Get Window pointer stored in HandleMsgSetup
+    Window* const pWnd = (Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+    return pWnd->HandleMsg(hWnd, uMsg, wParam, lParam);
 }
 
 LRESULT Window::HandleMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    return LRESULT();
+    switch (uMsg)
+    {
+    case WM_CLOSE:
+        // Quit window.
+        PostQuitMessage(69);
+        break;
+
+    case WM_KEYDOWN:
+    {
+        const char character[2] = { wParam, 0 };
+        SetWindowText(hWnd, character);
+        break;
+    }
+
+    case WM_KEYUP:
+        SetWindowText(hWnd, "D3DField");
+        break;
+
+
+    default:
+        return DefWindowProc(hWnd, uMsg, wParam, lParam);
+    }
+
+    return 0;
 }
 
