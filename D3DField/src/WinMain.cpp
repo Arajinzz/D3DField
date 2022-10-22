@@ -34,19 +34,23 @@ int WINAPI WinMain(
         className,
         L"D3DField",
         WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
-        100,
-        100,
-        800,
-        600,
+        100, 100, // x, y
+        800, 600, // w, h
         nullptr,
         nullptr,
         hInstance,
         nullptr
     );
 
-    // Test window display, To be removed later
     ShowWindow(hWnd, SW_SHOW);
-    while (true);
+
+    // Handle messages
+    MSG msg = { 0 };
+
+    while (GetMessage(&msg, nullptr, 0, 0) > 0) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 
     return 0;
 }
