@@ -93,17 +93,24 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(69);
         break;
 
-    case WM_KEYDOWN:
-    {
-        const char character[2] = { wParam, 0 };
-        SetWindowText(hWnd, character);
+    case WM_KILLFOCUS:
+        kbd.ClearState();
         break;
-    }
+
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN: // for keys like Alt
+        if ( !(lParam & 0x40000000) || kbd.IsAutorepeatEnabled() )
+            kbd.OnKeyPressed(wParam);
+        break;
 
     case WM_KEYUP:
-        SetWindowText(hWnd, "D3DField");
+    case WM_SYSKEYUP: // for keys like Alt
+        kbd.OnKeyReleased(wParam);
         break;
 
+    case WM_CHAR:
+        kbd.OnChar(wParam);
+        break;
 
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);

@@ -20,6 +20,11 @@ int WINAPI WinMain(
     while ( (result = GetMessage(&msg, nullptr, 0, 0)) > 0 ) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
+
+        if (window.kbd.IsKeyPressed(VK_MENU)) {
+            MessageBox(nullptr, "Alt Key Pressed!!!", "Testing The ALT KEY", 0);
+        }
+
     }
 
     // if result is -1 means that an error occured, otherwise exit with PostQuitMessage code

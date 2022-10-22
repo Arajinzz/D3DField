@@ -2,6 +2,8 @@
 
 #include <Windows.h>
 
+#include "Keyboard.h"
+
 class Window
 {
 
@@ -28,6 +30,9 @@ public:
 private:
 	HWND hWnd;
 	UINT width, height;
+
+public:
+	Keyboard kbd;
 
 private:
 	static LRESULT WINAPI HandleMsgSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
