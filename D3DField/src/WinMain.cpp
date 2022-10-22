@@ -2,6 +2,28 @@
 
 #include <Windows.h>
 
+
+LRESULT CALLBACK MainWndProc(
+    HWND hWnd,
+    UINT uMsg,
+    WPARAM wParam,
+    LPARAM lParam
+)
+{
+    switch (uMsg)
+    {
+    case WM_CLOSE:
+        // Quit window.
+        PostQuitMessage(69);
+        break;
+
+    default:
+        return DefWindowProc(hWnd, uMsg, wParam, lParam);
+    }
+
+    return 0;
+}
+
 int WINAPI WinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -16,7 +38,7 @@ int WINAPI WinMain(
     WNDCLASSEX wndClass = {0};
     wndClass.cbSize = sizeof(wndClass);
     wndClass.style = CS_OWNDC;
-    wndClass.lpfnWndProc = DefWindowProc;
+    wndClass.lpfnWndProc = MainWndProc;
     wndClass.cbClsExtra = 0;
     wndClass.cbWndExtra = 0;
     wndClass.hInstance = hInstance;
@@ -46,11 +68,15 @@ int WINAPI WinMain(
 
     // Handle messages
     MSG msg = { 0 };
+    int result;
 
-    while (GetMessage(&msg, nullptr, 0, 0) > 0) {
+    while ( (result = GetMessage(&msg, nullptr, 0, 0)) > 0 ) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
 
-    return 0;
+    // if result is -1 means that an error occured, otherwise exit with PostQuitMessage code
+    int returnValue = (result == -1) ? -1 : msg.wParam;
+
+    return returnValue;
 }
