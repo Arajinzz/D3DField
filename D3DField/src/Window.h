@@ -3,6 +3,7 @@
 #include <Windows.h>
 
 #include "Keyboard.h"
+#include "Mouse.h"
 
 class Window
 {
@@ -33,6 +34,7 @@ private:
 
 public:
 	Keyboard kbd;
+	Mouse mouse;
 
 private:
 	static LRESULT WINAPI HandleMsgSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

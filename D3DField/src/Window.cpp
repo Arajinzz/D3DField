@@ -112,6 +112,48 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         kbd.OnChar(wParam);
         break;
 
+    case WM_MOUSEMOVE:
+    {
+        POINTS pt = MAKEPOINTS(lParam);
+        mouse.OnMouseMove(pt.x, pt.y);
+        break;
+    }
+    case WM_LBUTTONDOWN:
+    {
+        POINTS pt = MAKEPOINTS(lParam);
+        mouse.OnLeftPressed(pt.x, pt.y);
+        break;
+    }
+    case WM_RBUTTONDOWN:
+    {
+        POINTS pt = MAKEPOINTS(lParam);
+        mouse.OnRightPressed(pt.x, pt.y);
+        break;
+    }
+    case WM_LBUTTONUP:
+    {
+        POINTS pt = MAKEPOINTS(lParam);
+        mouse.OnLeftReleased(pt.x, pt.y);
+        break;
+    }
+    case WM_RBUTTONUP:
+    {
+        POINTS pt = MAKEPOINTS(lParam);
+        mouse.OnRightReleased(pt.x, pt.y);
+        break;
+    }
+    case WM_MOUSEWHEEL:
+    {
+        POINTS pt = MAKEPOINTS(lParam);
+        if (GET_WHEEL_DELTA_WPARAM(wParam) > 0) {
+            mouse.OnWheelUp(pt.x, pt.y);
+        }
+        else if (GET_WHEEL_DELTA_WPARAM(wParam) > 0) {
+            mouse.OnWheelDown(pt.x, pt.y);
+        }
+        break;
+    }
+
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
