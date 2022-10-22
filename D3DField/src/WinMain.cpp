@@ -15,12 +15,15 @@ int WINAPI WinMain(
 
     // Handle messages
     MSG msg = { 0 };
-    int result;
+    std::optional<int> result;
 
-    while ( (result = GetMessage(&msg, nullptr, 0, 0)) > 0 ) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+    while (true) {
+        
+        result = window.ProcessMessages();
 
+        if (result) { // Means it have a value so we received a quit message 
+            break;
+        }
         if (window.kbd.IsKeyPressed(VK_MENU)) {
             MessageBox(nullptr, "Alt Key Pressed!!!", "Testing The ALT KEY", 0);
         }
@@ -28,7 +31,7 @@ int WINAPI WinMain(
     }
 
     // if result is -1 means that an error occured, otherwise exit with PostQuitMessage code
-    int returnValue = (result == -1) ? -1 : msg.wParam;
+    int returnValue = (*result == -1) ? -1 : msg.wParam;
 
     return returnValue;
 }

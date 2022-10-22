@@ -57,6 +57,22 @@ Window::~Window() {
     DestroyWindow(this->hWnd);
 }
 
+std::optional<int> Window::ProcessMessages()
+{
+    MSG msg;
+
+    while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+        if (msg.message == WM_QUIT) {
+            return msg.wParam;
+        }
+
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    return {};
+}
+
 LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (uMsg == WM_NCCREATE) {
@@ -118,7 +134,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         if (pt.x >= 0 && pt.x < width && pt.y >= 0 && pt.y < height) {
             mouse.OnMouseMove(pt.x, pt.y);
-            if (!mouse.IsInWindow) {
+            if (!mouse.IsInWindow()) {
                 SetCapture(hWnd);
                 mouse.OnMouseEnter();
             }

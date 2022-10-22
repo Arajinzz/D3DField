@@ -83,7 +83,7 @@ private:
 	int x, y; // coordinates
 	bool IsLeftPressed = false;
 	bool IsRightPressed = false;
-	bool IsInWindow = false;
+	bool bIsInWindow = false;
 	std::queue<Event> buffer;
 };
 

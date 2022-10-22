@@ -1,9 +1,11 @@
 #pragma once
 
 #include <Windows.h>
+#include <optional>
 
 #include "Keyboard.h"
 #include "Mouse.h"
+
 
 class Window
 {
@@ -27,6 +29,7 @@ private:
 public:
 	Window(UINT width, UINT height, const char* name);
 	~Window();
+	std::optional<int> ProcessMessages();
 
 private:
 	HWND hWnd;

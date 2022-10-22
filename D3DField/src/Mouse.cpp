@@ -12,7 +12,7 @@ int Mouse::GetPosY() const
 
 bool Mouse::IsInWindow() const
 {
-    return IsInWindow;
+    return bIsInWindow;
 }
 
 bool Mouse::LeftIsPressed() const
@@ -56,14 +56,14 @@ void Mouse::OnMouseMove(int x, int y)
 
 void Mouse::OnMouseLeave()
 {
-    IsInWindow = false;
+    bIsInWindow = false;
     buffer.push(Mouse::Event(Mouse::Event::Type::Leave, *this));
     TrimBuffer();
 }
 
 void Mouse::OnMouseEnter()
 {
-    IsInWindow = true;
+    bIsInWindow = true;
     buffer.push(Mouse::Event(Mouse::Event::Type::Enter, *this));
     TrimBuffer();
 }
