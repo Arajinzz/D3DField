@@ -24,6 +24,8 @@ int WINAPI WinMain(
         if (result) { // Means it have a value so we received a quit message 
             break;
         }
+        window.pGfx->ClearBuffer(0, 0.5, 0.5);
+        window.pGfx->EndFrame();
         if (window.kbd.IsKeyPressed(VK_MENU)) {
             MessageBox(nullptr, "Alt Key Pressed!!!", "Testing The ALT KEY", 0);
         }

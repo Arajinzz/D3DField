@@ -2,9 +2,11 @@
 
 #include <Windows.h>
 #include <optional>
+#include <memory>
 
 #include "Keyboard.h"
 #include "Mouse.h"
+#include "Graphics.h"
 
 
 class Window
@@ -38,6 +40,7 @@ private:
 public:
 	Keyboard kbd;
 	Mouse mouse;
+	std::unique_ptr<Graphics> pGfx;
 
 private:
 	static LRESULT WINAPI HandleMsgSetup(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
