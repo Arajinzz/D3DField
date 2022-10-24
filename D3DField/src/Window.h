@@ -7,11 +7,25 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Graphics.h"
+#include "Exception.h"
 
+// Macros
+#define W_EXCEPT(hr) Window::WException(__LINE__, __FILE__, hr)
 
 class Window
 {
-
+public:
+	class WException : public Exception {
+	public:
+		WException(unsigned int line, const char* file, HRESULT hr);
+		const char* what() const override;
+		virtual const char* GetType() const override;
+		static std::string TranslateErrorCode(HRESULT hr);
+		HRESULT GetErrorCode() const;
+		std::string GetErrorString() const;
+	private:
+		HRESULT hr;
+	};
 private:
 	class WindowClass {
 	public:

@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include <sstream>
+
 Window::WindowClass Window::WindowClass::wndClass; // Singleton declaration
 
 Window::WindowClass::WindowClass() : hInst( GetModuleHandle(nullptr) )
@@ -49,6 +51,10 @@ Window::Window(UINT width, UINT height, const char* name) {
         WindowClass::GetInstance(),
         this
     );
+
+    if (hWnd == nullptr) {
+        throw W_EXCEPT(GetLastError());
+    }
 
     ShowWindow(this->hWnd, SW_SHOW);
 
@@ -195,3 +201,54 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
+
+Window::WException::WException(unsigned int line, const char* file, HRESULT hr) :
+    Exception(line, file),
+    hr(hr)
+{
+
+}
+
+const char* Window::WException::what() const {
+    std::ostringstream oss;
+    oss << GetType() << std::endl
+        << "[Error Code] " << GetErrorCode() << std::endl
+        << "[Description] " << GetErrorString() << std::endl
+        << GetOriginString();
+    whatBuffer = oss.str();
+    return whatBuffer.c_str();
+}
+
+const char* Window::WException::GetType() const {
+    return "Window Exception";
+}
+
+std::string Window::WException::TranslateErrorCode(HRESULT hr) {
+    char* msgBuffer = nullptr;
+    DWORD msgLen = FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr,
+        hr,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPSTR)(&msgBuffer),
+        0,
+        nullptr
+    );
+
+    if (msgLen == 0)
+        return "Unknown error code";
+
+    std::string errorString = msgBuffer;
+    LocalFree(msgBuffer);
+    return errorString;
+}
+
+HRESULT Window::WException::GetErrorCode() const
+{
+    return hr;
+}
+
+std::string Window::WException::GetErrorString() const
+{
+    return TranslateErrorCode(hr);
+}
