@@ -3,6 +3,8 @@
 // Set up linking for d3d11
 #pragma comment(lib, "d3d11.lib")
 
+namespace wrl = Microsoft::WRL;
+
 Graphics::Graphics(HWND hWnd)
 {
 
@@ -39,27 +41,14 @@ Graphics::Graphics(HWND hWnd)
 	);
 
 	// Gain access to the back-buffer
-	ID3D11Resource* pBackBuffer = nullptr;
+	wrl::ComPtr<ID3D11Resource> pBackBuffer;
 	pSwap->GetBuffer(0, __uuidof(ID3D11Resource), (void**)(&pBackBuffer));
 	pDevice->CreateRenderTargetView(
-		pBackBuffer,
+		pBackBuffer.Get(),
 		nullptr,
 		&pTarget
 	);
-	pBackBuffer->Release();
 
-}
-
-Graphics::~Graphics()
-{
-	if (pTarget != nullptr)
-		pTarget->Release();
-	if (pContext != nullptr)
-		pContext->Release();
-	if (pSwap != nullptr)
-		pSwap->Release();
-	if (pDevice != nullptr)
-		pDevice->Release();
 }
 
 void Graphics::EndFrame()
@@ -70,5 +59,5 @@ void Graphics::EndFrame()
 void Graphics::ClearBuffer(float r, float g, float b)
 {
 	const float color[] = { r, g, b, 1.0f };
-	pContext->ClearRenderTargetView(pTarget, color);
+	pContext->ClearRenderTargetView(pTarget.Get(), color);
 }
