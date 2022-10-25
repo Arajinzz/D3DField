@@ -1,5 +1,7 @@
 #include "Graphics.h"
 
+#include <string>
+
 // Set up linking for d3d11
 #pragma comment(lib, "d3d11.lib")
 
@@ -25,13 +27,13 @@ Graphics::Graphics(HWND hWnd)
 	SwapDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // Multi buffering swap
 	SwapDesc.Flags = 0;
 
-	D3D11CreateDeviceAndSwapChain(
+	HRESULT hr = D3D11CreateDeviceAndSwapChain(
 		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
 		nullptr,
 		0,
 		nullptr,
-		0,
+		10,
 		D3D11_SDK_VERSION,
 		&SwapDesc,
 		&pSwap,
@@ -39,6 +41,12 @@ Graphics::Graphics(HWND hWnd)
 		nullptr,
 		&pContext
 	);
+
+	// Just an example on how to get a descriptive error, this will be removed later
+	const WCHAR* errString = DXGetErrorString(hr);
+	HRESULT errHr = DXTRACE_ERR(errString, hr);
+	WCHAR sss;
+	DXGetErrorDescriptionW(errHr, &sss, 100);
 
 	// Gain access to the back-buffer
 	wrl::ComPtr<ID3D11Resource> pBackBuffer;
