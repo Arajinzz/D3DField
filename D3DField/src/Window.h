@@ -45,6 +45,7 @@ private:
 public:
 	Window(UINT width, UINT height, const char* name);
 	~Window();
+	void InitGfx();
 	std::optional<int> ProcessMessages();
 
 private:

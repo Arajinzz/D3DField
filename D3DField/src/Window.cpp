@@ -57,13 +57,16 @@ Window::Window(UINT width, UINT height, const char* name) {
     }
 
     ShowWindow(this->hWnd, SW_SHOW);
-
-    // Create graphics obj
-    pGfx = std::make_unique<Graphics>(this->hWnd);
 }
 
 Window::~Window() {
     DestroyWindow(this->hWnd);
+}
+
+void Window::InitGfx()
+{
+    // Create graphics obj
+    pGfx = std::make_unique<Graphics>(this->hWnd);
 }
 
 std::optional<int> Window::ProcessMessages()

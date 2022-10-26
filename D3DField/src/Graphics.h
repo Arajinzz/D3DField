@@ -6,10 +6,21 @@
 #include <wrl/client.h>
 
 #include "dxerr.h"
+#include "Exception.h"
 
 class Graphics
 {
-
+public:
+	class DXException : public Exception {
+	public:
+		DXException(unsigned int line, const char* file, HRESULT hr);
+		const char* what() const override;
+		virtual const char* GetType() const override;
+		std::string GetErrorDesc() const;
+		std::string GetErrorString() const;
+	private:
+		HRESULT hr;
+	};
 public:
 	Graphics(HWND hWnd);
 	Graphics(const Graphics&) = delete;

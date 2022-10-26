@@ -115,6 +115,7 @@ void Mouse::OnWheelDown(int x, int y)
 void Mouse::TrimBuffer()
 {
     while (buffer.size() > bufferSize) {
+        Mouse::Event ev = buffer.front();
         buffer.pop();
     }
 }

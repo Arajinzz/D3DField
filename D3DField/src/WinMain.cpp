@@ -10,11 +10,10 @@ int WINAPI WinMain(
     _In_ int nCmdShow
 )
 {
-
+    Window window(800, 600, "D3DField");
     try {
-
-        Window window(800, 600, "D3DField");
-
+        // Because Graphics constructor throws exceptions it should be created in try catch bloc
+        window.InitGfx();
         // Handle messages
         MSG msg = { 0 };
         std::optional<int> result;

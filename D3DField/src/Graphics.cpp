@@ -1,11 +1,14 @@
 #include "Graphics.h"
 
 #include <string>
+#include <sstream>
 
 // Set up linking for d3d11
 #pragma comment(lib, "d3d11.lib")
 
 namespace wrl = Microsoft::WRL;
+
+#define GFX_CHECK_ERROR(hrcall) if(FAILED(hr = hrcall)) throw Graphics::DXException(__LINE__, __FILE__, hr);
 
 Graphics::Graphics(HWND hWnd)
 {
@@ -27,26 +30,24 @@ Graphics::Graphics(HWND hWnd)
 	SwapDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // Multi buffering swap
 	SwapDesc.Flags = 0;
 
-	HRESULT hr = D3D11CreateDeviceAndSwapChain(
-		nullptr,
-		D3D_DRIVER_TYPE_HARDWARE,
-		nullptr,
-		0,
-		nullptr,
-		10,
-		D3D11_SDK_VERSION,
-		&SwapDesc,
-		&pSwap,
-		&pDevice,
-		nullptr,
-		&pContext
-	);
+	HRESULT hr; // Should be declared before calling GFX_CHECK_ERROR macro
 
-	// Just an example on how to get a descriptive error, this will be removed later
-	const WCHAR* errString = DXGetErrorString(hr);
-	HRESULT errHr = DXTRACE_ERR(errString, hr);
-	WCHAR sss;
-	DXGetErrorDescriptionW(errHr, &sss, 100);
+	GFX_CHECK_ERROR(
+		D3D11CreateDeviceAndSwapChain(
+			nullptr,
+			D3D_DRIVER_TYPE_HARDWARE,
+			nullptr,
+			0,
+			nullptr,
+			10,
+			D3D11_SDK_VERSION,
+			&SwapDesc,
+			&pSwap,
+			&pDevice,
+			nullptr,
+			&pContext
+		)
+	);
 
 	// Gain access to the back-buffer
 	wrl::ComPtr<ID3D11Resource> pBackBuffer;
@@ -68,4 +69,44 @@ void Graphics::ClearBuffer(float r, float g, float b)
 {
 	const float color[] = { r, g, b, 1.0f };
 	pContext->ClearRenderTargetView(pTarget.Get(), color);
+}
+
+Graphics::DXException::DXException(unsigned int line, const char* file, HRESULT hr) :
+	Exception(line, file),
+	hr(hr)
+{
+}
+
+const char* Graphics::DXException::what() const
+{
+	std::ostringstream oss;
+	oss << GetType() << std::endl
+		<< "[Error String] " << GetErrorString() << std::endl
+		<< "[Description] " << GetErrorDesc() << std::endl
+		<< GetOriginString();
+	whatBuffer = oss.str();
+	return whatBuffer.c_str();
+}
+
+const char* Graphics::DXException::GetType() const
+{
+	return "DirectX Exception";
+}
+
+std::string Graphics::DXException::GetErrorDesc() const
+{
+	WCHAR buffer[1024];
+	DXGetErrorDescription(hr, buffer, 1024);
+	// Convert to string
+	std::wstring wide_string(buffer);
+	std::string str(wide_string.begin(), wide_string.end());
+	return str;
+}
+
+std::string Graphics::DXException::GetErrorString() const
+{
+	const WCHAR* errStr = DXGetErrorStringW(hr);
+	std::wstring wide_string(errStr);
+	std::string str(wide_string.begin(), wide_string.end());
+	return str;
 }
