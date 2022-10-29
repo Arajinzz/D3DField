@@ -8,8 +8,6 @@
 
 namespace wrl = Microsoft::WRL;
 
-#define GFX_CHECK_ERROR(hrcall) if(FAILED(hr = hrcall)) throw Graphics::DXException(__LINE__, __FILE__, hr);
-
 Graphics::Graphics(HWND hWnd)
 {
 
@@ -37,9 +35,9 @@ Graphics::Graphics(HWND hWnd)
 			nullptr,
 			D3D_DRIVER_TYPE_HARDWARE,
 			nullptr,
-			0,
+			D3D11_CREATE_DEVICE_DEBUG,
 			nullptr,
-			10,
+			0,
 			D3D11_SDK_VERSION,
 			&SwapDesc,
 			&pSwap,
@@ -71,10 +69,21 @@ void Graphics::ClearBuffer(float r, float g, float b)
 	pContext->ClearRenderTargetView(pTarget.Get(), color);
 }
 
-Graphics::DXException::DXException(unsigned int line, const char* file, HRESULT hr) :
+Graphics::DXException::DXException(unsigned int line, const char* file, HRESULT hr, std::vector<std::string> infos) :
 	Exception(line, file),
 	hr(hr)
 {
+
+	for (const auto& msg : infos) {
+		info += msg;
+		info.push_back('\n');
+	}
+
+	// Removes final new line
+	if (!info.empty()) {
+		info.pop_back();
+	}
+
 }
 
 const char* Graphics::DXException::what() const
@@ -82,8 +91,13 @@ const char* Graphics::DXException::what() const
 	std::ostringstream oss;
 	oss << GetType() << std::endl
 		<< "[Error String] " << GetErrorString() << std::endl
-		<< "[Description] " << GetErrorDesc() << std::endl
-		<< GetOriginString();
+		<< "[Description] " << GetErrorDesc() << std::endl;
+
+	if (!info.empty()) {
+		oss << "\n[Error Info]\n" << GetErrorInfo() << std::endl;
+	}
+
+	oss << GetOriginString();
 	whatBuffer = oss.str();
 	return whatBuffer.c_str();
 }
@@ -109,4 +123,9 @@ std::string Graphics::DXException::GetErrorString() const
 	std::wstring wide_string(errStr);
 	std::string str(wide_string.begin(), wide_string.end());
 	return str;
+}
+
+std::string Graphics::DXException::GetErrorInfo() const
+{
+	return info;
 }
