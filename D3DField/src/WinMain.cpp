@@ -26,6 +26,7 @@ int WINAPI WinMain(
                 break;
             }
             window.pGfx->ClearBuffer(0, 0.5, 0.5);
+            window.pGfx->DrawTriangle();
             window.pGfx->EndFrame();
             if (window.kbd.IsKeyPressed(VK_MENU)) {
                 MessageBox(nullptr, "Alt Key Pressed!!!", "Testing The ALT KEY", 0);

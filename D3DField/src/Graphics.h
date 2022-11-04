@@ -36,6 +36,8 @@ public:
 	void EndFrame();
 	void ClearBuffer(float r, float g, float b);
 
+	void DrawTriangle();
+
 private:
 	DXGIInfoManager infoManager;
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
