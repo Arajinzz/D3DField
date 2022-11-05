@@ -99,26 +99,49 @@ void Graphics::DrawTriangle()
 
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;
 	
-	D3D11_BUFFER_DESC bufDesc = {};
-	bufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufDesc.CPUAccessFlags = 0u;
-	bufDesc.MiscFlags = 0u;
-	bufDesc.ByteWidth = sizeof(vertices);
-	bufDesc.StructureByteStride = sizeof(Vertex);
+	D3D11_BUFFER_DESC vertexBufferDesc = {};
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	vertexBufferDesc.CPUAccessFlags = 0u;
+	vertexBufferDesc.MiscFlags = 0u;
+	vertexBufferDesc.ByteWidth = sizeof(vertices);
+	vertexBufferDesc.StructureByteStride = sizeof(Vertex);
 
-	D3D11_SUBRESOURCE_DATA subData = {};
-	subData.pSysMem = vertices;
+	D3D11_SUBRESOURCE_DATA vertexSubData = {};
+	vertexSubData.pSysMem = vertices;
 
 	HRESULT hr;
 	// Create vertex buffer
-	GFX_CHECK_ERROR(pDevice->CreateBuffer(&bufDesc, &subData, &pVertexBuffer));
+	GFX_CHECK_ERROR(pDevice->CreateBuffer(&vertexBufferDesc, &vertexSubData, &pVertexBuffer))
 
 	const UINT stride = sizeof(Vertex);
 	const UINT offset = 0u;
 
 	// Bind vertex buffer
 	pContext->IASetVertexBuffers(0u, 1u, pVertexBuffer.GetAddressOf(), &stride, &offset);
+
+	// Create Index buffer
+	const unsigned short indices[] = {
+		0, 1, 2,
+	};
+
+	wrl::ComPtr<ID3D11Buffer> pIndexBuffer;
+
+	D3D11_BUFFER_DESC indexBufferDesc = {};
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	indexBufferDesc.CPUAccessFlags = 0u;
+	indexBufferDesc.MiscFlags = 0u;
+	indexBufferDesc.ByteWidth = sizeof(indices);
+	indexBufferDesc.StructureByteStride = sizeof(unsigned short);
+
+	D3D11_SUBRESOURCE_DATA indexSubData = {};
+	indexSubData.pSysMem = indices;
+
+	GFX_CHECK_ERROR(pDevice->CreateBuffer(&indexBufferDesc, &indexSubData, &pIndexBuffer));
+
+	// Bind index buffer
+	pContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
 
 	// Create vertex shader
 	wrl::ComPtr<ID3D11VertexShader> pVertexShader;
@@ -181,7 +204,7 @@ void Graphics::DrawTriangle()
 
 	pContext->RSSetViewports(1u, &viewPort);
 
-	pContext->Draw((UINT)std::size(vertices), 0u);
+	pContext->DrawIndexed((UINT)std::size(indices), 0u, 0u);
 }
 
 Graphics::DXException::DXException(unsigned int line, const char* file, HRESULT hr, std::vector<std::string> infos) :
