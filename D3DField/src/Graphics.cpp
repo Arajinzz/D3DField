@@ -78,14 +78,23 @@ void Graphics::DrawTriangle()
 	namespace wrl = Microsoft::WRL;
 
 	struct Vertex {
-		float x;
-		float y;
+		struct {
+			float x;
+			float y;
+		} pos;
+
+		struct {
+			unsigned char r;
+			unsigned char g;
+			unsigned char b;
+			unsigned char a;
+		} color;
 	};
 
 	const Vertex vertices[] = {
-		{ 0.0f,  0.5f},
-		{ 0.5f, -0.5f},
-		{-0.5f, -0.5f},
+		{ 0.0f,  0.5f, 255,   0,   0, 0},
+		{ 0.5f, -0.5f,   0, 255,   0, 0},
+		{-0.5f, -0.5f,   0,   0, 255, 0},
 	};
 
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;
@@ -139,6 +148,7 @@ void Graphics::DrawTriangle()
 	wrl::ComPtr<ID3D11InputLayout> pInputLayout;
 	const D3D11_INPUT_ELEMENT_DESC inputElemDesc[] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 8u, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
 	GFX_CHECK_ERROR(
