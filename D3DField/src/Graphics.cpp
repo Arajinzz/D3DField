@@ -92,7 +92,7 @@ void Graphics::DrawTriangle()
 	};
 
 	const Vertex vertices[] = {
-		{ 0.0f,  0.5f, 255,   0,   0, 0},
+		{ 0.0f,  1.0f, 255,   0,   0, 0},
 		{ 0.5f, -0.5f,   0, 255,   0, 0},
 		{-0.5f, -0.5f,   0,   0, 255, 0},
 	};
@@ -142,6 +142,43 @@ void Graphics::DrawTriangle()
 
 	// Bind index buffer
 	pContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
+
+	// Create context buffer for transform matrix
+	struct ConstantBuffer {
+		struct {
+			float element[4][4];
+		} transformation;
+	};
+
+	static float angle = 0.0f;
+	angle += 0.01; // simple way to animate rotation
+
+	const ConstantBuffer constBuffer = {
+		{
+			std::cos(angle),  std::sin(angle), 0.0f, 0.0f,
+			-std::sin(angle), std::cos(angle), 0.0f, 0.0f,
+			0.0f,             0.0f,            1.0f, 0.0f,
+			0.0f,             0.0f,            0.0f, 1.0f,
+		}
+	};
+
+	wrl::ComPtr<ID3D11Buffer> pConstantBuffer;
+	D3D11_BUFFER_DESC constBufferDesc;
+
+	constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constBufferDesc.Usage = D3D11_USAGE_DYNAMIC; // transform matrix will be changed by CPU so Dynamic is the right USAGE, in this case we can get away with Constant Usage because everything is declared on the stack
+	constBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constBufferDesc.MiscFlags = 0u;
+	constBufferDesc.ByteWidth = sizeof(constBuffer);
+	constBufferDesc.StructureByteStride = 0u;
+
+	D3D11_SUBRESOURCE_DATA constBufSubData = {};
+	constBufSubData.pSysMem = &constBuffer;
+
+	GFX_CHECK_ERROR(pDevice->CreateBuffer(&constBufferDesc, &constBufSubData, &pConstantBuffer));
+
+	// Bind Const buffer
+	pContext->VSSetConstantBuffers(0u, 1u, pConstantBuffer.GetAddressOf());
 
 	// Create vertex shader
 	wrl::ComPtr<ID3D11VertexShader> pVertexShader;
